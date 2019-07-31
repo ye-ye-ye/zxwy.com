@@ -10,15 +10,14 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home,
-			children:[...base,...test] 
-    },
-    {
-      path: '/Login',
       name: 'login',
       component: () => import('./views/Login.vue')
     },
-		 
+		 {
+		   path: '/Home',
+		   name: 'home',
+		   component: Home,
+		 	children:[...base,...test] 
+		 }
   ]
 })

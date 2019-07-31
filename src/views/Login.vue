@@ -18,12 +18,15 @@
 </template>
 
 <script>
+	import Base64 from '../../utli/Base64.js'
 	export default {
 		name: 'Login',
 		data() {
+
 			var validatePass = (rule, value, callback) => {
-				if (value === '') {
-					callback(new Error('请输入账号'));
+				if (!(/^1[3456789]\d{9}$/.test(value))) {
+					callback(new Error('手机号码错误'));
+				 
 				} else {
 					if (this.ruleForm.psd !== '') {
 						this.$refs.ruleForm.validateField('psd');
@@ -32,13 +35,14 @@
 				}
 			};
 			var validatePass2 = (rule, value, callback) => {
-				if (value === '') {
-					callback(new Error('请输入密码'));
+				if (!(/^\w{6,}$/.test(value))) {
+					callback(new Error('密码长度大于5'));
 				} else {
 					callback();
 				}
 			};
 			return {
+
 				ruleForm: {
 					name: '',
 					psd: ''
@@ -58,23 +62,40 @@
 
 		},
 		mounted() {
-			 this.getCookie()
+			this.getCookie()
 		},
 		methods: {
 			submitForm(formName) {
-				var that=this
+				var that = this
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						//判断复选框是否被勾选 勾选则调用配置cookie方法
 						if (this.checked == true) {
-							console.log("checked == true");
 							//传入账号名，密码，和保存天数3个参数
-							this.setCookie(this.ruleForm.name, this.ruleForm.psd, 7);
+							let name = Base64.encode(this.ruleForm.name)
+							let psd = Base64.encode(this.ruleForm.psd)
+							this.setCookie(name, psd, 7);
 						} else {
 							console.log("清空Cookie");
 							//清空Cookie
 							that.clearCookie();
 						}
+
+						this.$http.get('http://192.168.1.188:12/api/OAuth/authenticate?userMobile=' + this.ruleForm.name +
+							'&userPassword=' + this.ruleForm.psd).then(res => {
+							if (res.status == 200) {
+								this.$router.push('/Home')
+								this.$message({
+									message: '登录成功',
+									type: 'success'
+								})
+							} else if (res.status == 401) {
+								this.$message.error('用户名或密码错误');
+							}
+
+						}).catch(() => {
+							this.$message.error('用户名或密码');
+						})
 					} else {
 
 						return false;
@@ -82,32 +103,40 @@
 				})
 			},
 			setCookie(c_name, c_pwd, exdays) {
-                var exdate = new Date(); //获取时间
-                exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
-                //字符串拼接cookie
-                window.document.cookie = "name" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
-                window.document.cookie = "psd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
-            },
-            //读取cookie
-            getCookie: function() {
-                if (document.cookie.length > 0) {
-                    var arr = document.cookie.split('; '); //这里显示的格式需要切割一下自己可输出看下
-                    for (var i = 0; i < arr.length; i++) {
-                        var arr2 = arr[i].split('='); //再次切割
-                        //判断查找相对应的值
-                        if (arr2[0] == 'name') {
-                            this.ruleForm.name = arr2[1]; //保存到保存数据的地方
-                        } else if (arr2[0] == 'psd') {
-                            this.ruleForm.psd = arr2[1];
-                        }
-                    }
-									this.checked=true	
-                }
-            },
-			
-			
-			
-			
+				var exdate = new Date(); //获取时间
+				exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
+				//字符串拼接cookie
+				window.document.cookie = "name" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
+				window.document.cookie = "psd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
+			},
+			//读取cookie
+			getCookie: function() {
+				if (document.cookie.length > 0) {
+					var arr = document.cookie.split(';'); //这里显示的格式需要切割一下自己可输出看下
+					console.log(arr)
+					for (var i = 0; i < arr.length; i++) {
+						var arr2 = arr[i].split('='); //再次切割
+						console.log(arr2)
+						//判断查找相对应的值
+						if (arr2[0] =='name') {
+							let name = Base64.decode(arr2[1]); //保存到保存数据的地方
+							console.log(name)
+							this.ruleForm.name = name.substring(0,11)
+						}  else if (arr2[0] == ' psd') {
+							let psd = arr2[1]
+							this.ruleForm.psd = Base64.decode(psd);
+							console.log(psd)
+						}
+					}
+					this.checked = true
+				}
+			},
+
+			clearCookie: function() {
+				this.setCookie("", "", -1);
+			}
+
+
 		}
 
 	}
@@ -126,14 +155,11 @@
 	}
 
 	form {
-		background-color: white;
-		padding: 0px;
-		margin: auto;
+		background-color: black;
 		padding: 15px;
-		opacity: .8;
+		opacity: .5;
 		border-radius: 10px;
-		width: 30%;
-		height: 43%;
+
 		margin: auto;
 	}
 
@@ -155,5 +181,6 @@
 
 	h3 {
 		text-align: center;
+		color: aqua;
 	}
 </style>
