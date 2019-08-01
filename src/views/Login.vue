@@ -10,7 +10,8 @@
 			</el-form-item>
 			<el-form-item>
 				<el-checkbox v-model="checked">记住密码</el-checkbox>
-				<el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+			 
+				<el-button type="primary" @click="submitForm('ruleForm')" :loading="loading">登录</el-button>
 			</el-form-item>
 		</el-form>
 	</div>
@@ -22,11 +23,9 @@
 	export default {
 		name: 'Login',
 		data() {
-
 			var validatePass = (rule, value, callback) => {
 				if (!(/^1[3456789]\d{9}$/.test(value))) {
 					callback(new Error('手机号码错误'));
-				 
 				} else {
 					if (this.ruleForm.psd !== '') {
 						this.$refs.ruleForm.validateField('psd');
@@ -42,7 +41,6 @@
 				}
 			};
 			return {
-
 				ruleForm: {
 					name: '',
 					psd: ''
@@ -57,16 +55,18 @@
 						trigger: 'blur'
 					}]
 				},
-				checked: false
+				checked: false,
+				loading:false
 			};
-
 		},
 		mounted() {
 			this.getCookie()
 		},
 		methods: {
 			submitForm(formName) {
+		 
 				var that = this
+				that.loading=true
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						//判断复选框是否被勾选 勾选则调用配置cookie方法
@@ -80,24 +80,20 @@
 							//清空Cookie
 							that.clearCookie();
 						}
-
-						this.$http.get('http://192.168.1.188:12/api/OAuth/authenticate?userMobile=' + this.ruleForm.name +
-							'&userPassword=' + this.ruleForm.psd).then(res => {
-							if (res.status == 200) {
-								this.$router.push('/Home')
-								this.$message({
+						that.$http.get('http://192.168.1.188:12/api/OAuth/authenticate?userMobile=' + this.ruleForm.name +
+							'&userPassword=' + that.ruleForm.psd).then(res => {
+								that.loading=false
+								that.$router.push('/Home')
+								that.$message({
 									message: '登录成功',
 									type: 'success'
 								})
-							} else if (res.status == 401) {
-								this.$message.error('用户名或密码错误');
-							}
 
 						}).catch(() => {
-							this.$message.error('用户名或密码');
+							that.loading=false
+							that.$message.error('用户名或密码错误，请重新输入');
 						})
 					} else {
-
 						return false;
 					}
 				})
@@ -106,8 +102,8 @@
 				var exdate = new Date(); //获取时间
 				exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
 				//字符串拼接cookie
-				window.document.cookie = "name" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
-				window.document.cookie = "psd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
+				window.document.cookie ="name" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
+				window.document.cookie ="psd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
 			},
 			//读取cookie
 			getCookie: function() {
@@ -118,11 +114,11 @@
 						var arr2 = arr[i].split('='); //再次切割
 						console.log(arr2)
 						//判断查找相对应的值
-						if (arr2[0] =='name') {
+						if (arr2[0].trimLeft() =='name') {//.trimLeft()去掉左边空格
 							let name = Base64.decode(arr2[1]); //保存到保存数据的地方
 							console.log(name)
 							this.ruleForm.name = name.substring(0,11)
-						}  else if (arr2[0] == ' psd') {
+						}  else if (arr2[0].trimLeft()== 'psd') {
 							let psd = arr2[1]
 							this.ruleForm.psd = Base64.decode(psd);
 							console.log(psd)
@@ -131,7 +127,7 @@
 					this.checked = true
 				}
 			},
-
+			//清除cookes
 			clearCookie: function() {
 				this.setCookie("", "", -1);
 			}
@@ -143,8 +139,6 @@
 </script>
 
 <style scoped="scoped">
-	@import url("//unpkg.com/element-ui@2.10.0/lib/theme-chalk/index.css");
-
 	.content {
 		position: fixed;
 		height: 100%;
