@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<style lang="less">	@import url("//unpkg.com/element-ui@2.10.0/lib/theme-chalk/index.css");
+<style lang="less"> 
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -24,4 +24,5 @@
   }
 }
 body{margin: 0px;padding: 0px;}
+a{text-decoration: none;}
 </style>

@@ -10,7 +10,7 @@ import VueAxios from 'vue-axios'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueAxios, axios)
-axios.default.baseURL = 'http://192.168.1.188:12'
+axios.defaults.baseURL = 'http://192.168.1.188:12'
 new Vue({
   router,
   store,
