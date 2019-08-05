@@ -25,4 +25,17 @@
 }
 body{margin: 0px;padding: 0px;}
 a{text-decoration: none;}
+// 主页面标题下空隙
+.el-menu-item-group__title{
+  padding:  0px !important;
+}
+
+div.el-submenu__title{background-color: antiquewhite !important;}
+//主页面首页标签×去除
+#tab-0 .el-icon-close{
+      display: none;
+  }
+   .el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{
+   border-bottom: 3px solid #409EFF !important;
+ }
 </style>

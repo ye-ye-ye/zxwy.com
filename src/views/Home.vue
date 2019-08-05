@@ -3,7 +3,7 @@
     <el-container>
       <el-aside width="auto">
         <el-menu
-          default-active="1-4-1"
+          :default-active="index.toString()"
           class="el-menu-vertical-demo"
           @open="handleOpen"
           @close="handleClose"
@@ -18,9 +18,9 @@
               <i class="el-icon-menu"></i>
               <span slot="title">基础信息</span>
             </template>
-            <el-menu-item-group v-for="(item,index) in arr" :key="index">
+            <el-menu-item-group v-for="(item,index) in arr" :key="index" >
               <router-link :to="item.routerPath">
-                <el-menu-item size="small" @click="addTab(editableTabsValue,item)">{{item.title}}</el-menu-item>
+                <el-menu-item size="small" @click="addTab(editableTabsValue,item)" v-bind:index="(index.toString())">{{item.title}}</el-menu-item>
               </router-link>
             </el-menu-item-group>
           </el-submenu>
@@ -29,9 +29,9 @@
               <i class="el-icon-menu"></i>
               <span slot="title">在线测试</span>
             </template>
-            <el-menu-item-group v-for="(item,index) in arr2" :key="index">
+            <el-menu-item-group  v-for="(item,index) in arr2" :key="index">
               <router-link :to="item.routerPath">
-                <el-menu-item size="small" @click="addTab(editableTabsValue,item)">{{item.title}}</el-menu-item>
+                <el-menu-item size="small" @click="addTab(editableTabsValue,item)" >{{item.title}}</el-menu-item>
               </router-link>
             </el-menu-item-group>
           </el-submenu>
@@ -44,7 +44,14 @@
             <el-radio-group v-model="isCollapse"></el-radio-group>
           </span>
           <div class="tag">
-            <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+            <el-tabs
+              v-model="editableTabsValue"
+              type="border-card"
+              closable
+              @tab-remove="removeTab"
+              @tab-click="skip"
+            >
+              <el-tab-pane label="首页" name="0"></el-tab-pane>
               <el-tab-pane
                 v-for=" item in editableTabs"
                 :key="item.name"
@@ -53,7 +60,15 @@
               ></el-tab-pane>
             </el-tabs>
           </div>
-          <el-avatar icon="el-icon-user-solid"></el-avatar>
+          <el-dropdown>
+  <span class="el-dropdown-link">
+    <el-avatar icon="el-icon-user-solid"></el-avatar><i class="el-icon-arrow-down el-icon--right"></i>
+  </span>
+  <el-dropdown-menu slot="dropdown">
+    <router-link to="/"><el-dropdown-item >退出系统</el-dropdown-item></router-link>
+  </el-dropdown-menu>
+</el-dropdown>
+          
         </el-header>
         <el-main>
           <router-view name="right"></router-view>
@@ -71,7 +86,8 @@ export default {
       isCollapse: false, //导航栏标题折叠
       editableTabsValue: 0,
       editableTabs: [],
-      tabIndex: 0,
+      tabIndex: 0, 
+      index:"",
       arr: [
         //基础信息
         { routerPath: "/sudentRouter", title: "学生管理" },
@@ -88,7 +104,9 @@ export default {
       ]
     };
   },
-  created() {},
+  created() {
+  this.content()
+  },
   methods: {
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
@@ -96,6 +114,24 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
+
+/**添加本地数据 */
+  content(){
+        let that=this
+        console.log(this.$router.currentRoute.fullPath)
+        if(sessionStorage.getItem('data')!=''){
+             this.editableTabs=JSON.parse(sessionStorage.getItem('data'))
+        for(let a of JSON.parse(sessionStorage.getItem('data'))){
+          console.log(a)
+           if(this.$router.currentRoute.fullPath==a.title.routerPath){
+              that.editableTabsValue =a.name;//当前路由对应的页面
+           }
+        } 
+        }
+       
+      },
+
+
     /**
      * 展开 收回
      */
@@ -105,12 +141,12 @@ export default {
     /**
      * 添加右上导航栏标签
      */
-
+    
     addTab(targetName, e) {
       console.log(e);
-       
       var that = this;
       for (let i = 0; i < that.editableTabs.length; i++) {
+        //查找是否有重复
         if (that.editableTabs[i].title.title == e.title) {
           that.editableTabsValue = that.editableTabs[i].name;
           return;
@@ -121,7 +157,19 @@ export default {
         title: e,
         name: newTabName
       });
+      sessionStorage.setItem('data',JSON.stringify(that.editableTabs))
       that.editableTabsValue = newTabName;
+    },
+    /**点击跳转路由 */
+    skip(data) {
+      this.index=0;
+      //  console.log(data.index)
+      if (data.index == 0) {
+        this.$router.push("/Home");
+      } else {
+        this.$router.push(this.editableTabs[data.index - 1].title.routerPath);
+      }
+       
     },
     /**
      * 删除标签
@@ -130,31 +178,33 @@ export default {
       let that = this;
       console.log(targetName);
       let tabs = that.editableTabs;
-      let activeName =that.editableTabsValue;
+      let activeName = that.editableTabsValue;
       if (activeName === targetName) {
         tabs.forEach((tab, index) => {
-          console.log(tab)
+          console.log(tab);
           if (tab.name === targetName) {
             let nextTab = tabs[index + 1] || tabs[index - 1];
             if (nextTab) {
               activeName = nextTab.name;
-              that.$router.push(tabs[index-1].title.routerPath);
-               console.log(tabs, index);
-            }else{
-               that.$router.push("/Home")
+              if (index == tabs.length - 1) {
+                that.$router.push(tabs[index - 1].title.routerPath);
+                
+              } else {
+                that.$router.push(tabs[index + 1].title.routerPath);
+              }
+              console.log(tabs, index);
+            } else {
+            that.editableTabsValue =0;
+              that.$router.push("/Home");
             }
-          }else{
-           
-          }
+          } 
         });
-      } 
-         
-       
-    
-      
+      }
+
       this.editableTabsValue = activeName;
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-      console.log(this.editableTabs)
+      sessionStorage.setItem('data',JSON.stringify(that.editableTabs))
+
     }
   }
 };
@@ -176,17 +226,16 @@ export default {
   overflow: hidden;
   display: flex;
   justify-content: space-between;
-
 }
 
 .el-aside {
   height: 100%;
+  background-color: antiquewhite;
 }
 
 .el-main {
-  background-color: #e9eef3;
+ 
   color: #333;
-
   height: 80%;
 }
 
@@ -208,22 +257,20 @@ body > .el-container {
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
   min-height: 400px;
+  background-color: antiquewhite;
 }
 .el-container {
   height: 100%;
 }
-.el-menu-item-group__title {
-  padding: none;
-}
+
 .el-aside {
   overflow: hidden;
 }
 .el-menu-item {
   padding: 0px;
+  background-color: antiquewhite;
 }
-.el-menu-item-group__title {
-  padding: 0px !important;
-}
+
 .el-menu-item:hover {
   background-color: none !important;
 }
@@ -232,6 +279,7 @@ body > .el-container {
 .el-menu-item:first-child:hover {
   background-color: 0px;
 }
+
 // 标签
 .el-tag,
 .el-tag--light {
@@ -242,7 +290,12 @@ body > .el-container {
   display: inline;
   width: 80%;
   overflow: hidden;
-  
 }
  
+  // .el-menu-item:focus, .el-menu-item:hover{
+  //   background-color:aqua;
+  // }
+.el-menu-item.is-active{
+  background-color:bisque;
+}
 </style>

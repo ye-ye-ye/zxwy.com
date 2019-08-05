@@ -83,14 +83,15 @@ export default {
             )
             .then(res => {
               console.log(res.data.access_token)
-              window.localStorage.setItem('token',res.data.access_token)
-              //判断复选框是否被勾选 勾选则调用配置cookie方法
+              // sessionStorage.getItem(token, res.data.access_token)
+              this.$store.commit('SET_TOKEN', res.data.access_token);
+             //判断复选框是否被勾选 勾选则调用配置cookie方法
           if (this.checked == true) {
              //保存到cookie
             let name = Base64.encode(this.ruleForm.name);
             let psd = Base64.encode(this.ruleForm.psd);
-            Cookie.setCookie("name",name)
-            Cookie.setCookie("psd",psd)
+            Cookie.setCookie("name",name,{maxAge:60*60*24*30})
+            Cookie.setCookie("psd",psd,{maxAge:60*60*24*30})
           } else {
             console.log("清空Cookie");
             //清空Cookie
