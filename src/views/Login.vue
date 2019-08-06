@@ -82,9 +82,10 @@ export default {
                 that.ruleForm.psd
             )
             .then(res => {
-              console.log(res.data.access_token)
-              // sessionStorage.getItem(token, res.data.access_token)
-              this.$store.commit('SET_TOKEN', res.data.access_token);
+             
+               sessionStorage.setItem("token_type","Bearer" +" "+res.data.access_token) 
+                sessionStorage.setItem("userUid",res.data.profile.userUid)
+              sessionStorage.setItem("user",res.data.profile.userName)
              //判断复选框是否被勾选 勾选则调用配置cookie方法
           if (this.checked == true) {
              //保存到cookie
@@ -97,14 +98,19 @@ export default {
             //清空Cookie
             that.clearCookie();
           }
-              that.loading = false;
-              that.$router.replace("/Home");
-              that.$message({
-                message: "登录成功",
-                type: "success"
-              });
-            })
-            .catch(() => {
+              that.loading = false;//加载
+              //判断是否是从主页面退出
+              if(JSON.parse(sessionStorage.getItem('data'))){
+                this.$router.go(-1);      
+              }else{
+                that.$router.replace("/Home");
+              }
+             that.$message({
+                              message: "登录成功",
+                              type: "success"
+                            });
+                          
+           }).catch(() => {
               that.loading = false;
              
               that.$message.error("用户名或密码错误，请重新输入");

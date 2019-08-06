@@ -3,36 +3,27 @@
     <el-container>
       <el-aside width="auto">
         <el-menu
-          :default-active="index.toString()"
+          :default-active="$router.currentRoute.path"
           class="el-menu-vertical-demo"
-          @open="handleOpen"
-          @close="handleClose"
           :collapse="isCollapse"
+          router
         >
+          <!-- logo -->
           <el-menu-item style="padding-left:10px;">
             <img src="@/assets/logo.png" />
           </el-menu-item>
-
-          <el-submenu index="1">
+          <!-- 一级菜单 -->
+          <el-submenu v-for="(item,index) in  opction" :key="index" :index="''+index">
             <template slot="title">
               <i class="el-icon-menu"></i>
-              <span slot="title">基础信息</span>
+              <span slot="title">{{item.title}}</span>
             </template>
-            <el-menu-item-group v-for="(item,index) in arr" :key="index" >
-              <router-link :to="item.routerPath">
-                <el-menu-item size="small" @click="addTab(editableTabsValue,item)" v-bind:index="(index.toString())">{{item.title}}</el-menu-item>
-              </router-link>
-            </el-menu-item-group>
-          </el-submenu>
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-menu"></i>
-              <span slot="title">在线测试</span>
-            </template>
-            <el-menu-item-group  v-for="(item,index) in arr2" :key="index">
-              <router-link :to="item.routerPath">
-                <el-menu-item size="small" @click="addTab(editableTabsValue,item)" >{{item.title}}</el-menu-item>
-              </router-link>
+            <!-- 二级菜单 -->
+            <el-menu-item-group v-for="(items,num) in item.arr" :index="index+'-'+num">
+              <el-menu-item size="small" @click="addTab(items,index)" :index="items.routerPath">
+                {{items.title}}
+                <span class="triangle"></span>
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -43,32 +34,34 @@
             <i class="el-icon-s-fold"></i>
             <el-radio-group v-model="isCollapse"></el-radio-group>
           </span>
+          <!-- 标签页 -->
           <div class="tag">
             <el-tabs
               v-model="editableTabsValue"
               type="border-card"
-              closable
               @tab-remove="removeTab"
               @tab-click="skip"
             >
-              <el-tab-pane label="首页" name="0"></el-tab-pane>
               <el-tab-pane
-                v-for=" item in editableTabs"
+                v-for="(item,index) in editableTabs"
                 :key="item.name"
                 :label="item.title.title"
                 :name="item.name"
+                :closable="index>0"
               ></el-tab-pane>
             </el-tabs>
           </div>
           <el-dropdown>
-  <span class="el-dropdown-link">
-    <el-avatar icon="el-icon-user-solid"></el-avatar><i class="el-icon-arrow-down el-icon--right"></i>
-  </span>
-  <el-dropdown-menu slot="dropdown">
-    <router-link to="/"><el-dropdown-item >退出系统</el-dropdown-item></router-link>
-  </el-dropdown-menu>
-</el-dropdown>
-          
+            <span class="el-dropdown-link">
+              <el-avatar icon="el-icon-user-solid"></el-avatar>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <div @click="logOut">退出系统</div>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </el-header>
         <el-main>
           <router-view name="right"></router-view>
@@ -77,61 +70,61 @@
     </el-container>
   </div>
 </template>
-
 <script>
 export default {
   name: "Home",
   data() {
     return {
       isCollapse: false, //导航栏标题折叠
-      editableTabsValue: 0,
-      editableTabs: [],
-      tabIndex: 0, 
-      index:"",
-      arr: [
-        //基础信息
-        { routerPath: "/sudentRouter", title: "学生管理" },
-        { routerPath: "/classRouter", title: "班级管理" },
-        { routerPath: "/teacherRouter", title: "教师管理" },
-        { routerPath: "/teacherInfoRouter", title: "修改密码" }
+      editableTabsValue: 0, //标签页 序列号
+      editableTabs: [
+        { title: { title: "首页", routerPath: "/Home" }, name: "0+''" } //标签页
       ],
-      arr2: [
-        //在线测试
-        { routerPath: "/testRouter", title: "测试维护" },
-        { routerPath: "/assignTaskRouter", title: "布置任务" },
-        { routerPath: "/checkRouter", title: "查阅试卷" },
-        { routerPath: "/resultsRouter", title: "查看学成绩" }
+      tabIndex: 0,
+
+      opction: [
+        {
+          title: "基础信息",
+          arr: [
+            //基础信息
+
+            { routerPath: "/sudentRouter", title: "学生管理" },
+            { routerPath: "/classRouter", title: "班级管理" },
+            { routerPath: "/teacherRouter", title: "教师管理" },
+            { routerPath: "/teacherInfoRouter", title: "修改密码" }
+          ]
+        },
+        {
+          title: "在线测试",
+          arr: [
+            //在线测试
+            { routerPath: "/testRouter", title: "测试维护" },
+            { routerPath: "/assignTaskRouter", title: "布置任务" },
+            { routerPath: "/checkRouter", title: "查阅试卷" },
+            { routerPath: "/resultsRouter", title: "查看学成绩" }
+          ]
+        }
       ]
     };
   },
   created() {
-  this.content()
+    var that = this;
+    console.log(JSON.parse(sessionStorage.getItem("data")));
+    let data = JSON.parse(sessionStorage.getItem("data"));
+    if (JSON.parse(sessionStorage.getItem("data")).length > 0) {
+      //获取本地数据
+      console.log(data);
+      that.editableTabs = data;
+      that.editableTabs.forEach(item => {
+        if (that.$router.currentRoute.fullPath == item.title.routerPath) {
+          that.editableTabsValue = item.name;
+        }
+      });
+    } else {
+      that.editableTabsValue = that.editableTabs[0].name;
+    }
   },
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
-
-/**添加本地数据 */
-  content(){
-        let that=this
-        console.log(this.$router.currentRoute.fullPath)
-        if(sessionStorage.getItem('data')!=''){
-             this.editableTabs=JSON.parse(sessionStorage.getItem('data'))
-        for(let a of JSON.parse(sessionStorage.getItem('data'))){
-          console.log(a)
-           if(this.$router.currentRoute.fullPath==a.title.routerPath){
-              that.editableTabsValue =a.name;//当前路由对应的页面
-           }
-        } 
-        }
-       
-      },
-
-
     /**
      * 展开 收回
      */
@@ -141,42 +134,35 @@ export default {
     /**
      * 添加右上导航栏标签
      */
-    
-    addTab(targetName, e) {
-      console.log(e);
+
+    addTab(data) {
+      console.log(data);
       var that = this;
       for (let i = 0; i < that.editableTabs.length; i++) {
         //查找是否有重复
-        if (that.editableTabs[i].title.title == e.title) {
+        if (that.editableTabs[i].title.title == data.title) {
           that.editableTabsValue = that.editableTabs[i].name;
           return;
         }
       }
       let newTabName = ++that.tabIndex + "";
       that.editableTabs.push({
-        title: e,
+        title: data,
         name: newTabName
       });
-      sessionStorage.setItem('data',JSON.stringify(that.editableTabs))
+      sessionStorage.setItem("data", JSON.stringify(that.editableTabs));
       that.editableTabsValue = newTabName;
     },
     /**点击跳转路由 */
     skip(data) {
-      this.index=0;
-      //  console.log(data.index)
-      if (data.index == 0) {
-        this.$router.push("/Home");
-      } else {
-        this.$router.push(this.editableTabs[data.index - 1].title.routerPath);
-      }
-       
+      this.$router.push(this.editableTabs[data.index].title.routerPath);
     },
     /**
      * 删除标签
      */
     removeTab(targetName) {
       let that = this;
-      console.log(targetName);
+      // console.log(targetName);
       let tabs = that.editableTabs;
       let activeName = that.editableTabsValue;
       if (activeName === targetName) {
@@ -187,24 +173,29 @@ export default {
             if (nextTab) {
               activeName = nextTab.name;
               if (index == tabs.length - 1) {
-                that.$router.push(tabs[index - 1].title.routerPath);
-                
+                this.$router.push(tabs[index - 1].title.routerPath);
               } else {
-                that.$router.push(tabs[index + 1].title.routerPath);
+                this.$router.push(tabs[index + 1].title.routerPath);
               }
-              console.log(tabs, index);
-            } else {
-            that.editableTabsValue =0;
-              that.$router.push("/Home");
             }
-          } 
+          }
         });
       }
-
+      console.log(this.editableTabsValue);
       this.editableTabsValue = activeName;
+      console.log(activeName);
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-      sessionStorage.setItem('data',JSON.stringify(that.editableTabs))
+      sessionStorage.setItem("data", JSON.stringify(that.editableTabs));
+    },
+    //退出系统
+    logOut() {
+      this.$router.push("/");
 
+      sessionStorage.removeItem("token_type");
+      this.$message({
+        message: "成功退出系统",
+        type: "success"
+      });
     }
   }
 };
@@ -234,7 +225,6 @@ export default {
 }
 
 .el-main {
- 
   color: #333;
   height: 80%;
 }
@@ -288,14 +278,29 @@ body > .el-container {
 .tag {
   display: flex;
   display: inline;
-  width: 80%;
+  flex: 1;
   overflow: hidden;
 }
- 
-  // .el-menu-item:focus, .el-menu-item:hover{
-  //   background-color:aqua;
-  // }
-.el-menu-item.is-active{
-  background-color:bisque;
+
+// 导航栏激活背景颜色
+.el-menu-item.is-active {
+  background-color: bisque;
+  position: relative;
+}
+//三角小图标
+.el-menu-item.is-active .triangle {
+  margin: 0px;
+  padding: 0px;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 20px solid black;
+  position: absolute;
+  right: 0px;
+  top: 50%-10px;
+}
+.el-submenu .el-menu-item {
+  height: 40px;
+  line-height: 40px;
 }
 </style>

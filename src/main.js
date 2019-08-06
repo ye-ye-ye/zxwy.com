@@ -10,7 +10,44 @@ import VueAxios from 'vue-axios'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueAxios, axios)
+// 设置默认请求地址
 axios.defaults.baseURL = 'http://192.168.1.188:12'
+
+var token=sessionStorage.getItem("token_type")
+//设置默认请求头
+axios.defaults.headers.Authorization=token
+ 
+  //注册导航守卫(回调函数)，beforeEach全局前置守卫
+router.beforeEach((to,from,next)=>{
+  console.log("执行啦");
+  console.log(to);
+  console.log(from);
+  //next 方法不执行就不会跳转，类似于中间件的作用
+  next();
+  if(to.path === '/') {
+    //登录页不需要进行判断
+    next();
+  }else{
+      let token = window.sessionStorage.getItem("token_type");
+    //判断token是否存在，有没有登录
+    if(token){
+      //token存在，登录成功
+      //继续访问
+      next();
+    }else{
+      //没有token，没有登录
+      //this.$message.error("请先登录");提示框不生效
+      //本来其他组件Vue实例能访问$message是因为它存在Vue构造函数的原型里
+      //在router.js里this不是Vue实例,访问不到$message，可以用构造函数点出来
+      Vue.prototype.$message.error('您还没有登录');
+      // 去登录页:使用next直接跳转路由
+      next('/');
+    }
+  }
+})
+
+
+
 new Vue({
   router,
   store,

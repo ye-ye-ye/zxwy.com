@@ -8,8 +8,8 @@
       label-width="100px"
       class="demo-ruleForm"
     >
-		 <el-form-item label="旧密码" prop="pass">
-        <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+      <el-form-item label="旧密码" prop="oldPsd">
+        <el-input type="password" v-model="ruleForm.oldPsd" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item label="新密码" prop="pass">
         <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
@@ -27,34 +27,9 @@
 </template>
 
 <script>
+ 
 export default {
   data() {
-    var checkAge = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("年龄不能为空"));
-      }
-      setTimeout(() => {
-        if (!Number.isInteger(value)) {
-          callback(new Error("请输入数字值"));
-        } else {
-          if (value < 18) {
-            callback(new Error("必须年满18岁"));
-          } else {
-            callback();
-          }
-        }
-      }, 1000);
-    };
-    var validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
-      } else {
-        if (this.ruleForm.checkPass !== "") {
-          this.$refs.ruleForm.validateField("checkPass");
-        }
-        callback();
-      }
-    };
     var validatePass2 = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入密码"));
@@ -66,22 +41,65 @@ export default {
     };
     return {
       ruleForm: {
-        pass: "",
-        checkPass: "",
-        age: ""
+        oldPsd: "",//旧密码
+        pass: "",//新密码
+        checkPass: ""//确认新密码
       },
       rules: {
-        pass: [{ validator: validatePass, trigger: "blur" }],
-        checkPass: [{ validator: validatePass2, trigger: "blur" }],
-        age: [{ validator: checkAge, trigger: "blur" }]
+        oldPsd: [
+          { required: true, message: "请输入旧密码", trigger: "blur" },
+          { min: 6, max: 8, message: "长度在 6 到 8 个字符", trigger: "blur" }
+        ],
+        pass: [
+          { required: true, message: "请输入新密码", trigger: "blur" },
+          { min: 6, max: 8, message: "长度在 6 到 8 个字符", trigger: "blur" }
+        ],
+        checkPass: [{ validator: validatePass2, trigger: "blur" }]
       }
     };
   },
   methods: {
+
+    // 提交
     submitForm(formName) {
+      let that = this;
+   
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          let uid = sessionStorage.getItem("userUid");
+          console.log(sessionStorage.getItem("userUid"))
+          console.log(that.ruleForm.pass,that.ruleForm.oldPsd)
+             
+          that.$http
+            .get(
+              "/api/User/ModifyPassword?uid=" +
+                uid +
+                "&oldPassword=" +
+                that.ruleForm.oldPsd+"&newPassword="+ that.ruleForm.pass
+            )
+            .then(res => {
+              console.log(res)
+              if(res.data.code==1){
+                that.$message({
+                message: "修改成功",
+                type: "success"
+              });
+              that.$router.push({path:"/",query:"1"})
+              }
+              if(res.data.code==-3){
+                  that.$message.error("旧密码错误");
+              }
+              if(res.data.code==-2){
+              that.$message.error("参数错误");
+              }
+              if(res.data.code==0){
+                that.$message.error("密码没有变化");
+              }
+
+            })
+            .catch(err=> {
+              console.log(err)
+            });
         } else {
           console.log("error submit!!");
           return false;
