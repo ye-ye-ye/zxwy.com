@@ -45,20 +45,18 @@
     </el-card>
   </div>
 </template>
-  
-
 <script>
 export default {
   data() {
     return {
         dialogFormVisible: false,//嵌套表单 false 为关闭状态
-      tableData: [],//表格数据
-       form: {
+        tableData: [],//表格数据
+         form: {
           className: '',//班级名称
           teacher:'',//教师名称
           major:''//专业
         },
-        formLabelWidth: '120px'
+        formLabelWidth: '120px'//嵌套表单表单宽度
       };
     },
  

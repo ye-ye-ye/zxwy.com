@@ -13,7 +13,7 @@ Vue.use(VueAxios, axios)
 // 设置默认请求地址
 axios.defaults.baseURL = 'http://192.168.1.188:12'
 
-var token=JSON.parent(sessionStorage.getItem("token_type"))
+var token= sessionStorage.getItem("token_type")
 //设置默认请求头
 axios.defaults.headers.Authorization=token
  
@@ -71,10 +71,9 @@ axios.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          this.$store.commit('del_token');
+        window.sessionStorage.removeItem("token_type");
           router.replace({
-            path: '/',
-            query: {redirect: router.currentRoute.fullPath}//登录成功后跳入浏览的当前页面
+            path: '/'
           })
       }
     }
