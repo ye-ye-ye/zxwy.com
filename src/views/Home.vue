@@ -13,13 +13,13 @@
             <img src="@/assets/logo.png" />
           </el-menu-item>
           <!-- 一级菜单 -->
-          <el-submenu v-for="(item,index) in  opction" :key="index" :index="''+index">
+          <el-submenu v-for="(item,index) in  opction" :key="''+index" :index="''+index">
             <template slot="title">
               <i class="el-icon-menu"></i>
               <span slot="title">{{item.title}}</span>
             </template>
             <!-- 二级菜单 -->
-            <el-menu-item-group v-for="(items,num) in item.arr" :index="index+'-'+num">
+            <el-menu-item-group v-for="(items,num) in item.arr">
               <el-menu-item size="small" @click="addTab(items,index)" :index="items.routerPath">
                 {{items.title}}
                 <span class="triangle"></span>
@@ -76,9 +76,9 @@ export default {
   data() {
     return {
       isCollapse: false, //导航栏标题折叠
-      editableTabsValue: 0, //标签页 序列号
+      editableTabsValue: "0", //标签页 序列号
       editableTabs: [
-        { title: { title: "首页", routerPath: "/Home" }, name: "0+''" } //标签页
+        { title: { title: "首页", routerPath: "/Home" }, name: "0" } //标签页
       ],
       tabIndex: 0,
 
@@ -133,6 +133,7 @@ export default {
     },
     /**
      * 添加右上导航栏标签
+     * @param {string} data 点击项数据
      */
 
     addTab(data) {
@@ -181,9 +182,9 @@ export default {
           }
         });
       }
-      console.log(this.editableTabsValue);
+      // console.log(this.editableTabsValue);
       this.editableTabsValue = activeName;
-      console.log(activeName);
+      // console.log(activeName);
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
       sessionStorage.setItem("data", JSON.stringify(that.editableTabs));
     },
@@ -211,7 +212,7 @@ export default {
 //布局样式开始
 .el-header {
   background-color: white;
-  color: #333;
+  
   height: 40px !important;
   line-height: 40px;
   overflow: hidden;

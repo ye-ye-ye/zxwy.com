@@ -38,4 +38,8 @@ div.el-submenu__title{background-color: antiquewhite !important;}
    .el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{
    border-bottom: 3px solid #409EFF !important;
  }
+ //班级管理添加班级 去除背景阴影
+ .v-modal {
+  background: none ;
+}
 </style>
