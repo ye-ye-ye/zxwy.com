@@ -1,7 +1,7 @@
 import sudentRouter from '@/views/base/student'
 import classRouter from '@/views/base/class.vue'
 import teacherRouter from '@/views/base/teacher.vue'
-import teacherInfoRouter from '@/views/base/teacherInfo'
+import changePass from '@/views/base/changePass'
 
 export default [{
 		path: '/sudentRouter',
@@ -26,10 +26,10 @@ export default [{
 			},
 			
 {
-				path: '/teacherInfoRouter',
-				name: 'teacherInfoRouter',
+				path: '/changePass',
+				name: 'changePass',
 				components: {
-					right: teacherInfoRouter
+					right: changePass
 				}
 			}
 

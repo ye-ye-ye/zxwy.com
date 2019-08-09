@@ -100,7 +100,7 @@ export default {
           }
               that.loading = false;//加载
               //判断是否是从主页面退出
-              if(sessionStorage.getItem('data')!=''){
+              if(sessionStorage.getItem('data')){
                 this.$router.go(-1);      
               }else{
                 that.$router.replace("/Home");
