@@ -2,39 +2,46 @@
   <div id="home">
     <el-container>
       <el-aside width="auto">
-        <el-menu
-          :default-active="$router.currentRoute.path"
-          class="el-menu-vertical-demo"
-          :collapse="isCollapse"
-          router
-        >
-          <!-- logo -->
-          <el-menu-item style="padding-left:11px;">
-            <img src="@/assets/logo.png" />
-          </el-menu-item>
-          <!-- 一级菜单 -->
-          <el-submenu v-for="(item,index) in  opction" :key="''+index" :index="''+index">
-            <template slot="title">
-              <i class="el-icon-menu"></i>
-              <span slot="title">{{item.title}}</span>
-            </template>
-            <!-- 二级菜单 -->
-            <el-menu-item-group v-for="items  in item.arr" :key="items.routerPath">
-              <el-menu-item size="small" @click="addTab(items,index)" :index="items.routerPath">
-                {{items.title}}
-                <span class="triangle"></span>
-              </el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-        </el-menu>
+        <el-scrollbar style="height:100%;">
+          <el-menu
+            :default-active="$router.currentRoute.path"
+            class="el-menu-vertical-demo"
+            :collapse="isCollapse"
+            router
+          >
+            <!-- logo -->
+            <el-menu-item style="padding-left:11px;">
+              <img src="@/assets/logo.png" />
+            </el-menu-item>
+            <!-- 一级菜单 -->
+            <el-submenu v-for="(item,index) in  opction" :key="''+index" :index="index+''">
+              <template slot="title">
+                <i class="el-icon-menu"></i>
+                <span slot="title">{{item.title}}</span>
+              </template>
+              <!-- 二级菜单 -->
+              <el-menu-item-group v-for="items  in item.arr" :key="items.routerPath">
+                <el-menu-item size="small" @click="addTab(items,index)" :index="items.routerPath">
+                  {{items.title}}
+                  <span class="triangle"></span>
+                </el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+          </el-menu>
+        </el-scrollbar>
       </el-aside>
       <el-container>
         <el-header style="padding:0px">
           <span @click="beginRecover">
-             <el-tooltip class="item" effect="light" :content="isCollapse? '展开':'收回'" placement="top">
-            <el-button type="primary" icon="el-icon-s-unfold" v-if="isCollapse"></el-button>
-            <el-button type="primary" icon="el-icon-s-fold" v-else></el-button>
-             </el-tooltip>
+            <el-tooltip
+              class="item"
+              effect="light"
+              :content="isCollapse? '展开':'收回'"
+              placement="top"
+            >
+              <el-button type="primary" icon="el-icon-s-unfold" v-if="isCollapse"></el-button>
+              <el-button type="primary" icon="el-icon-s-fold" v-else></el-button>
+            </el-tooltip>
           </span>
           <!-- 标签页 -->
           <div class="tag">
@@ -46,10 +53,9 @@
             >
               <el-tab-pane
                 v-for="(item,index) in editableTabs"
-                :key="item.title.routerPath"
+                :key="item.title.title"
                 :label="item.title.title"
                 :name="item.name"
-                :index="'index'+index"
                 :closable="index>0"
               ></el-tab-pane>
             </el-tabs>
@@ -67,7 +73,9 @@
           </el-dropdown>
         </el-header>
         <el-main>
-          <router-view name="right"></router-view>
+          <el-scrollbar style="height:100%;">
+            <router-view name="right"></router-view>
+          </el-scrollbar>
         </el-main>
       </el-container>
     </el-container>
@@ -83,8 +91,7 @@ export default {
       editableTabs: [
         { title: { title: "首页", routerPath: "/Home" }, name: "0" } //标签页
       ],
-      tabIndex: 0,
-
+      tabIndex: 0, //点击数
       opction: [
         {
           title: "基础信息",
@@ -94,6 +101,7 @@ export default {
             { routerPath: "/sudentRouter", title: "学生管理" },
             { routerPath: "/classRouter", title: "班级管理" },
             { routerPath: "/teacherRouter", title: "教师管理" },
+            { routerPath: "/userType", title: "角色管理" },
             { routerPath: "/changePass", title: "修改密码" }
           ]
         },
@@ -142,18 +150,24 @@ export default {
     addTab(data) {
       console.log(data);
       var that = this;
+
       for (let i = 0; i < that.editableTabs.length; i++) {
         //查找是否有重复
         if (that.editableTabs[i].title.title == data.title) {
           that.editableTabsValue = that.editableTabs[i].name;
+
           return;
         }
       }
-      let newTabName = ++that.tabIndex + "";
+
+      let newTabName = sessionStorage.getItem("data")
+        ?  ++JSON.parse(sessionStorage.getItem("data")).length +""+Math.random()
+        :++that.tabIndex + "";
       that.editableTabs.push({
         title: data,
         name: newTabName
       });
+
       sessionStorage.setItem("data", JSON.stringify(that.editableTabs));
       that.editableTabsValue = newTabName;
     },
@@ -209,7 +223,6 @@ export default {
   width: 100%;
   height: 100%;
   position: absolute;
-   
 }
 //布局样式开始
 .el-header {
@@ -255,8 +268,6 @@ body > .el-container {
   height: 100%;
 }
 
- 
- 
 .el-menu-item {
   padding: 0px;
   background-color: antiquewhite;
@@ -304,6 +315,4 @@ body > .el-container {
   height: 40px;
   line-height: 40px;
 }
-
- 
 </style>

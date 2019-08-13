@@ -64,9 +64,9 @@
   </div>
 </template>
 <script>
- 
 export default {
   data() {
+    
     return {
       dialogFormVisible: false, //嵌套表单 false 为关闭状态
       button: 1, //1表示添加 2表示编辑 3表示删除
@@ -103,16 +103,17 @@ export default {
     this.getTeachers(); //所有 教师
     this.getAllCourse(); //全部课程
   },
- 
+
   methods: {
+    //日期格式
+    dateForma: function(row, column) {
+      var date = row[column.property];
+      if (date == undefined) {
+        return "";
+      }
+      return this.moment(date).format("YYYY年MM月DD日 HH:mm:ss");
+    },
 
- dateForma:function(row,column){      
-     var date = row[column.property];   
-        if(date == undefined){return ''};       
-    return this.moment(date).format("YYYY年MM月DD日 HH:mm:ss") 
-      },
-
- 
     /**
      * 获得所以班级信息
      *
@@ -253,6 +254,7 @@ export default {
           if (that.button == 3) {
             //删除成功
             that.tableData.splice(that.index, 1);
+
           } else {
             that.update(data); //渲染到表格
             that.dialogFormVisible = false; //关闭提交表单
@@ -266,7 +268,7 @@ export default {
           break;
         case -2:
           that.$message.error("参数错误");
-            break;
+          break;
         default:
           that.$message.error("其他错误");
           break;
@@ -276,7 +278,7 @@ export default {
      * 更新数据（编辑、添加)
      * @param {Object} data 新增班级的信息
      */
-    update (data) {
+    update(data) {
       var userName = ""; //老师名称
       var courseName = ""; //课程名称
       let that = this;

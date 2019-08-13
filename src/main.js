@@ -75,6 +75,7 @@ axios.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
+          if(router.path!='/'){
             window.sessionStorage.removeItem("token_type");
             Vue.prototype.$message.error('token失效，重新登录获得,3s跳转到登录页面');
               setTimeout(() => {
@@ -82,7 +83,7 @@ axios.interceptors.response.use(
                   path: '/',
                 })
               },3000);
-        
+          }
       
       }
     }
