@@ -73,9 +73,17 @@
           </el-dropdown>
         </el-header>
         <el-main>
-          <el-scrollbar style="height:100%;">
-            <router-view name="right"></router-view>
-          </el-scrollbar>
+          <!-- 面包屑 -->
+          <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
+            <el-breadcrumb-item
+              v-for="(item)  in levelList"
+              :key="item.path"
+              v-if="item.meta.title"
+            >
+              <router-link :to="item.redirect||item.path">{{item.meta.title}}</router-link>
+            </el-breadcrumb-item>
+          </el-breadcrumb>
+          <router-view name="right"></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -88,6 +96,7 @@ export default {
     return {
       isCollapse: false, //导航栏标题折叠
       editableTabsValue: "0", //标签页 序列号
+      levelList: "",
       editableTabs: [
         { title: { title: "首页", routerPath: "/Home" }, name: "0" } //标签页
       ],
@@ -110,9 +119,9 @@ export default {
           arr: [
             //在线测试
             { routerPath: "/testRouter", title: "测试维护" },
-            { routerPath: "/assignTaskRouter", title: "布置任务" },
+            { routerPath: "/assignTaskRouter", title: "老师出卷" },
             { routerPath: "/checkRouter", title: "查阅试卷" },
-            { routerPath: "/resultsRouter", title: "查看学成绩" }
+            { routerPath: "/resultsRouter", title: "查看学生成绩" }
           ]
         }
       ]
@@ -135,7 +144,28 @@ export default {
       that.editableTabsValue = that.editableTabs[0].name;
     }
   },
+  mounted() {
+    this.getBreadcrumb();
+  },
+  watch: {
+    $route(to, from) {
+      //监听路由
+      this.getBreadcrumb();
+    }
+  },
   methods: {
+    //面包屑
+    getBreadcrumb() {
+      let matched = this.$route.matched.filter(item => item.name);
+      const first = matched[0];
+      if (first && first.name !== "首页") {
+        matched = [{ path: "/home", meta: { title: "首页" } }].concat(matched);
+      }
+      this.levelList = matched;
+      if (this.$route.path == "/home") {
+        this.editableTabsValue = "0";
+      }
+    },
     /**
      * 展开 收回
      */
@@ -161,8 +191,10 @@ export default {
       }
 
       let newTabName = sessionStorage.getItem("data")
-        ?  ++JSON.parse(sessionStorage.getItem("data")).length +""+Math.random()
-        :++that.tabIndex + "";
+        ? ++JSON.parse(sessionStorage.getItem("data")).length +
+          "" +
+          Math.random()
+        : ++that.tabIndex + "";
       that.editableTabs.push({
         title: data,
         name: newTabName

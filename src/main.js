@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import moment from  'moment'
+ 
 Vue.prototype.moment=moment
 Vue.config.productionTip = false
 Vue.use(ElementUI)
@@ -67,25 +68,27 @@ router.beforeEach((to,from,next)=>{
   // http response 拦截器
 axios.interceptors.response.use(
   response => {
-
+    console.log(response)
     return response;
   },
   error => {
+    
  console.log(error.response)
     if (error.response) {
+    
       switch (error.response.status) {
         case 401:
-          if(router.path!='/'){
-            window.sessionStorage.removeItem("token_type");
-            Vue.prototype.$message.error('token失效，重新登录获得,3s跳转到登录页面');
+            if(router.currentRoute.fullPath!='/'){
+             window.sessionStorage.removeItem("token_type");
+            Vue.prototype.$message.error('token失效，重新登录获得,3s跳转到登录页面');  
               setTimeout(() => {
                 router.push({
                   path: '/',
                 })
               },3000);
           }
-      
-      }
+        }
+       
     }
     return Promise.reject(error.response.data)
   });

@@ -20,7 +20,7 @@
       <el-table :data="userType">
         <el-table-column prop="userTypeId" label="编号"></el-table-column>
         <el-table-column prop="userTypeTypeName" label="角色名称"></el-table-column>
-        <el-table-column fixed="right" label="操作">
+        <el-table-column fixed="right" label="操作" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"

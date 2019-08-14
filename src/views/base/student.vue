@@ -1,10 +1,7 @@
 <template>
   <div id="student">
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/Home'}">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>学生管理</el-breadcrumb-item>
-    </el-breadcrumb>
-    <el-card>
+    
+    <el-card class="box-card">
       <el-select placeholder="选择班级" v-model="selected" @change="selectedClass">
         <el-option
           :label="item.className"
@@ -65,7 +62,7 @@
         <el-table-column prop="stuSex" label="性别" width="100"></el-table-column>
         <el-table-column prop="stuMobile" label="手机号码" width="150"></el-table-column>
         <el-table-column prop="stuPassword" label="密码" width="100"></el-table-column>
-        <el-table-column fixed="right" label="操作" width="150">
+        <el-table-column fixed="right" label="操作" width="150" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -115,7 +112,7 @@ export default {
       formLabelWidth: "100px",
       stuUid: "", //学生标识符
       value:"",//选择的班级名
-      stuUid:"",//要删除的学生识别码
+      className:"",//当前班级名称
       form: {
         stuName: "", //学生姓名
         stuClassId: "", // 班级编号
@@ -177,6 +174,7 @@ export default {
           });
           that.classData = arr;
           that.dataClass = arr;
+          
         })
         .catch(() => {});
     },
@@ -250,9 +248,8 @@ export default {
           if (that.button == 3) {
             //删除
             //删除成功
-           that.classData.splice(that.index,1)
-             that.dataClass=that.dataClass.filter(item=>item.stuUid!=that.stuUid)
-              that.selectedClass(that.value)
+          that.classData.splice(that.index,1)
+          that.dataClass=that.dataClass.filter(item=>item.stuUid!=that.stuUid)        
           } else {
             that.update(content); //渲染到表格
           }
@@ -291,13 +288,20 @@ export default {
             className = el.className;
           }
         });
-      
+         that.classData[that.index].classId=that.form.stuClassId 
         that.classData[that.index].stuMobile = that.form.stuMobile;
         that.classData[that.index].className = className;
         that.classData[that.index].stuName = that.form.stuName;
         that.classData[that.index].stuPassword = that.form.stuPassword;
         that.classData[that.index].stuSex = that.form.stuSex;
         that.classData[that.index].stuAge = data.data;
+        that.dataClass.forEach(el=>{
+          if(el.stuUid==that.stuUid){
+            el=that.classData[that.index]
+          }
+        })
+          that.selectedClass(that.className)
+
       }
     },
 
@@ -341,6 +345,7 @@ export default {
       var that = this;
       that.index = index;
       that.stuUid = row.stuUid;
+      that.className=row.className;
       that.dialogFormVisible = true; //打开
       (that.form.stuName = row.stuName), //学生姓名
         (that.form.stuClassId = row.classId), // 班级编号

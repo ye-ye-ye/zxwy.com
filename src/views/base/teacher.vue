@@ -1,9 +1,5 @@
  <template>
   <div id="student">
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/Home'}">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>教师管理</el-breadcrumb-item>
-    </el-breadcrumb>
     <el-card class="box-card">
       <el-button
         type="primary"
@@ -30,7 +26,7 @@
           <el-form-item label="用户角色" :label-width="formLabelWidth" prop="userUserTypeId">
             <el-select v-model="form.userUserTypeId" placeholder="选择角色">
               <el-option
-                v-for="(item,index) in userType"
+                v-for="item in userType"
                 :key="item.userTypeTypeName"
                 :label="item.userTypeTypeName"
                 :value="item.userTypeId"
@@ -60,7 +56,7 @@
         <el-table-column prop="userMobile" label="手机号码" width="150"></el-table-column>
         <el-table-column prop="userPassword" label="密码"></el-table-column>
         <el-table-column prop="userTypeTypeName" label="职务"></el-table-column>
-        <el-table-column fixed="right" label="操作" width="150">
+        <el-table-column fixed="right" label="操作" width="150" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -240,7 +236,7 @@ export default {
       that.form.userUserTypeId = row.userUserTypeId;
       that.userUid = row.userUid; //要修改的用户标识符
       that.userUserTypeId = row.userUserTypeId; //要修改的角色编号
-      that.userTypeTypeName = row.userTypeTypeName;
+      that.userTypeTypeName = row.userTypeTypeName; //要修改的角色名
       that.index = index; //要修改的下标
     },
     /**
@@ -287,55 +283,53 @@ export default {
      * @param {Object} content 新增班级的信息
      */
     update(content) {
- 
       console.log(content);
       let that = this;
       var userTypeTypeName = ""; //角色名
-         
+
       if (that.button == 1) {
         //添加
-         that.userType.forEach(el => {
+        that.userType.forEach(el => {
           if (el.userTypeId == content.data.userUserTypeId) {
             userTypeTypeName = el.userTypeTypeName; //角色名
           }
         });
         that.allData.push({
           //添加到最后一行
-          userUid:content.data.userUid, 
+          userUid: content.data.userUid,
           userId: content.data.userId,
           userName: content.data.userName,
           userSex: content.data.userSex,
           userMobile: content.data.userMobile,
           userPassword: content.data.userPassword,
           userTypeTypeName,
-          userUserTypeId:content.data.userUserTypeId 
+          userUserTypeId: content.data.userUserTypeId
         });
-        that.checked(that.value)
-      } else{
-         
+        that.checked(that.value);
+      } else {
         //编辑按钮
-           that.userType.forEach(el => {
+        that.userType.forEach(el => {
           if (el.userTypeId == that.form.userUserTypeId) {
+            //通过角色编号来找角色名称
             userTypeTypeName = el.userTypeTypeName; //角色名
           }
         });
         //编辑后局部渲染
+        that.tableData[that.index].userUserTypeId = that.form.userUserTypeId;
         that.tableData[that.index].userMobile = that.form.userMobile;
         that.tableData[that.index].userSex = that.form.userSex;
         that.tableData[that.index].userPassword = that.form.userPassword;
         that.tableData[that.index].userName = that.form.userName;
         that.tableData[that.index].userTypeTypeName = userTypeTypeName;
- 
+
         //改变allData里面的值，与选择角色筛选有关
         that.allData.forEach(el => {
           if (el.userId == that.tableData[that.index].userId) {
             el = that.tableData[that.index];
           }
         });
-        that.checked(that.value)
+        that.checked(that.value);
       }
-     
-      
     },
     /**
      *  删除当行数据

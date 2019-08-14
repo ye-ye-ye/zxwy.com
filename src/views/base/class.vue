@@ -1,9 +1,6 @@
 <template>
   <div id="class">
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/Home'}">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>班级管理</el-breadcrumb-item>
-    </el-breadcrumb>
+    
     <el-card class="box-card">
       <!-- Form -->
       <el-button

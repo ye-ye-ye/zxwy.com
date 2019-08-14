@@ -7,6 +7,7 @@ import changePass from '@/views/base/changePass.vue'
 export default [{
 		path: '/sudentRouter',
 		name: 'sudentRouter',
+		meta: { title: '学生管理' } ,
 		components: {
 			right: sudentRouter
 		}
@@ -14,6 +15,7 @@ export default [{
 	{
 			path: '/classRouter',
 			name: 'classRouter',
+			meta: { title: '班级管理' },
 			components: {
 				right: classRouter
 			}
@@ -21,6 +23,7 @@ export default [{
 		{
 				path: '/teacherRouter',
 				name: 'teacherRouter',
+				meta: { title: '教师管理' },
 				components: {
 					right: teacherRouter
 				}
@@ -29,6 +32,7 @@ export default [{
 {
 				path: '/changePass',
 				name: 'changePass',
+				meta: { title: '修改密码' } ,
 				components: {
 					right: changePass
 				}
@@ -36,6 +40,7 @@ export default [{
 			{
 				path: '/userType',
 				name: 'userType',
+				meta: { title: '角色管理' },
 				components: {
 					right: userType
 				}
