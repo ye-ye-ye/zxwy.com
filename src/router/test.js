@@ -1,8 +1,8 @@
 import testRouter from '@/views/test/test.vue'
-import assignTaskRouter from '@/views/test/assignTask.vue'
+import giveProblem from '@/views/test/giveProblem.vue'
 import checkRouter from '@/views/test/check.vue'
 import resultsRouter from '@/views/test/results.vue'
-
+ 
 export default [{
 		path: '/testRouter',
 		name: 'testRouter',
@@ -12,11 +12,11 @@ export default [{
 		}
 	},
  {
- 	path: '/assignTaskRouter',
-	 name: 'assignTaskRouter',
+ 	path: '/giveProblem',
+	 name: 'giveProblem',
 	 meta: { title: '老师出卷' } ,
  	components: {
- 		right:assignTaskRouter
+ 		right:giveProblem
  	}
  },
 	{

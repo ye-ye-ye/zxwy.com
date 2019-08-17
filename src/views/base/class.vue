@@ -39,7 +39,7 @@
           <el-button type="primary" @click="submitForm('form')">确 定</el-button>
         </div>
       </el-dialog>
-      <el-table :data="tableData" style="width: 100%">
+      <el-table :data="tableData" style="width: 100%" >
         <el-table-column prop="className" label="班级名称" width="150"></el-table-column>
         <el-table-column prop="userName" label="老师名称" width="150"></el-table-column>
         <el-table-column prop="courseName" label="专业名称"></el-table-column>

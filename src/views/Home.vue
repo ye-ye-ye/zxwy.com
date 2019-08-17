@@ -75,13 +75,13 @@
         <el-main>
           <!-- 面包屑 -->
           <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
+            <template v-for="item in levelList">
             <el-breadcrumb-item
-              v-for="(item)  in levelList"
               :key="item.path"
-              v-if="item.meta.title"
-            >
+              v-if="item.meta.title">
               <router-link :to="item.redirect||item.path">{{item.meta.title}}</router-link>
             </el-breadcrumb-item>
+            </template>
           </el-breadcrumb>
           <router-view name="right"></router-view>
         </el-main>
@@ -96,7 +96,7 @@ export default {
     return {
       isCollapse: false, //导航栏标题折叠
       editableTabsValue: "0", //标签页 序列号
-      levelList: "",
+      levelList: "",//面包屑
       editableTabs: [
         { title: { title: "首页", routerPath: "/Home" }, name: "0" } //标签页
       ],
@@ -119,7 +119,7 @@ export default {
           arr: [
             //在线测试
             { routerPath: "/testRouter", title: "测试维护" },
-            { routerPath: "/assignTaskRouter", title: "老师出卷" },
+            { routerPath: "/giveProblem", title: "老师出卷" },
             { routerPath: "/checkRouter", title: "查阅试卷" },
             { routerPath: "/resultsRouter", title: "查看学生成绩" }
           ]

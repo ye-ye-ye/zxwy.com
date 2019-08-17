@@ -1,11 +1,11 @@
  <template>
   <div class="giveTest">
     <el-form ref="ruleForm" :model="ruleForm" label-width="80px" style="width:70%;" :rules="rules">
-      <el-form-item label="试卷名称" prop="testName">
-        <el-input v-model="ruleForm.testName"></el-input>
+      <el-form-item label="试卷名称" prop="tpTitle">
+        <el-input v-model="ruleForm.tpTitle"></el-input>
       </el-form-item>
-      <el-form-item label="课程名称"  prop="courseId">
-        <el-select v-model="ruleForm.courseId" placeholder="请选择课程" style="width:100%;">
+      <el-form-item label="课程名称" prop="tpCourseId">
+        <el-select v-model="ruleForm.tpCourseId" placeholder="请选择课程" style="width:100%;">
           <el-option
             :label="item.courseName"
             :value="item.courseId"
@@ -13,45 +13,41 @@
             :key="index"
           ></el-option>
         </el-select>
-       
       </el-form-item>
-       <el-button style="margin-top: 12px;" @click="submitForm('ruleForm')" type="primary">下一步</el-button>
+      <el-button style="margin-top: 12px;" @click="submitForm('ruleForm')" type="primary">下一步</el-button>
     </el-form>
   </div>
 </template>
  <script>
 export default {
   data() {
-     var checkAge = (rule, value, callback) => {
+    var tpTitle = (rule, value, callback) => {
+      if (!value) {
+        return this.$message.error("请输入考试名称");
+      } else {
+        callback();
+      }
+    };
+    var tpCourseId = (rule, value, callback) => {
+      if (this.ruleForm.tpTitle != "") {
         if (!value) {
-          return  this.$message.error("请输入考试名称");
-        }else{
-               callback();
-        }
-        
-      };
-    if(checkAge!=''){
-       var validatePass2 = (rule, value, callback) => {
-        if (value === '') {
-           return this.$message.error("你还没有选择课程")
+          return this.$message.error("请输入考试课程");
         } else {
           callback();
         }
-      };
-    }
+      }
+    };
+
     return {
       active: 0,
       allCourse: [], //所有课程
       ruleForm: {
-        testName: "",
-        courseId: ""
+        tpTitle: "",
+        tptpCourseId: ""
       },
       rules: {
-        testName: [
-         
-            { validator: checkAge, trigger: 'blur' }
-        ],
-        courseId: [ { validator:validatePass2, trigger: 'blur' }]
+        tpTitle: [{ validator: tpTitle, trigger: "blur" }],
+        tpCourseId: [{ validator: tpCourseId, trigger: "blur" }]
       }
     };
   },
@@ -72,11 +68,26 @@ export default {
     },
     submitForm(formName) {
       let that = this;
-          
+
       // console.log(data)
       this.$refs[formName].validate(valid => {
         if (valid) {
-        
+          that.$http.post(
+            "/api/TestPaper/MakeTestPaper?uid=" +
+              sessionStorage.getItem("userUid"),
+              that.ruleForm
+          ).then(res=>{
+              console.log(res.data)
+              if(res.data.code==1){
+            that.$emit("verify", res.data.data.testPaperId);
+                that.$message({
+                  message:"添加成功",
+                  type:"success"
+                })
+              }
+          }).catch(()=>{
+            
+          })
         } else {
           console.log("error submit!!");
           return false;
